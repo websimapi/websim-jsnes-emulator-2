@@ -57,6 +57,14 @@ let audio_write_cursor = 0;
 let audio_read_cursor = 0;
 let audioContext = null;
 
+// Peer-specific renderer. Peers don't run the emulator loop,
+// so they need a separate function to draw frames received from the host.
+function renderPeerFrame(frameData) {
+    if (!framebuffer_u8 || !canvasContext || !imageData) return;
+    framebuffer_u8.set(frameData);
+    canvasContext.putImageData(imageData, 0, 0);
+}
+
 function audio_remain() {
     return (audio_write_cursor - audio_read_cursor) & SAMPLE_MASK;
 }
@@ -175,7 +183,7 @@ function startEmulator(romData, isHostStart = false) {
     scriptNode.connect(audioContext.destination);
 
     nes = new NES({
-        onFrame: onFrame,
+        onFrame: (isPeer) ? null : onFrame, // Peers don't use onFrame, they render frames from network
         onAudioSample: (isHostStart || (!isPeer && !isHost)) ? onAudioSample : null,
         sampleRate: audioContext.sampleRate,
     });
@@ -581,9 +589,8 @@ async function initMultiplayer() {
         if (isPeer && fromClientId === hostId) {
             switch(data.type) {
                 case 'frame-update':
-                    // We received a frame from the host, render it.
-                    framebuffer_u8.set(data.frame);
-                    canvasContext.putImageData(imageData, 0, 0);
+                    // We received a frame from the host, render it directly.
+                    renderPeerFrame(data.frame);
                     break;
                 case 'audio-chunk':
                     // we received audio from the host, buffer it.
