@@ -534,7 +534,10 @@ async function initMultiplayer() {
                 shareButtonMobile.style.display = 'none';
                 joinButtonMobile.style.display = 'none';
                 stopShareButtonMobile.style.display = 'block';
-                stopShareButtonMobile.textContent = 'Leave';
+                stopShareButtonMobile.textContent = 'Stop';
+
+                updatePlayerList();
+
             }
         } else if (!hostId && isPeer) {
             // Host has left
@@ -585,8 +588,8 @@ async function initMultiplayer() {
     });
 
     room.onmessage = (event) => {
-        const { data, fromClientId } = event;
-        if (isPeer && fromClientId === hostId) {
+        const data = event.data;
+        if (isPeer && data.clientId === hostId) {
             switch(data.type) {
                 case 'frame-update':
                     // We received a frame from the host, render it directly.
