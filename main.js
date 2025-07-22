@@ -130,6 +130,7 @@ function onFrame(frameBuffer) {
                 type: 'frame-update',
                 // convert to a regular array for JSON serialization
                 frame: Array.from(framebuffer_u8),
+                echo: false // Don't send to self
             });
         }
     }
@@ -158,9 +159,11 @@ function main_loop(timestamp) {
 function startEmulator(romData, isHostStart = false) {
     if (animationFrameId) {
         cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
     }
-    if (audioContext) {
+    if (audioContext && audioContext.state !== 'closed') {
         audioContext.close();
+        audioContext = null;
     }
 
     statusDiv.textContent = 'Emulator running.';
@@ -173,15 +176,21 @@ function startEmulator(romData, isHostStart = false) {
 
     nes = new NES({
         onFrame: onFrame,
-        onAudioSample: isHostStart || !isPeer ? onAudioSample : null, // only host sends audio
+        onAudioSample: (isHostStart || (!isPeer && !isHost)) ? onAudioSample : null,
         sampleRate: audioContext.sampleRate,
     });
-
-    nes.loadROM(romData);
     
-    lastFrameTime = 0;
-    accumulator = 0;
-    animationFrameId = requestAnimationFrame(main_loop);
+    // For peers, romData might be null, but we still need to init the NES object.
+    // The actual frames will come from the host.
+    if (romData) {
+        nes.loadROM(romData);
+    }
+    
+    if (!isPeer) { // Only host or single player runs the main loop
+        lastFrameTime = 0;
+        accumulator = 0;
+        animationFrameId = requestAnimationFrame(main_loop);
+    }
 }
 
 
@@ -498,32 +507,27 @@ async function initMultiplayer() {
 
         if (hostId && hostId !== room.clientId) {
             // Another user is hosting, we become a peer
-            isPeer = true;
-            isHost = false;
-            statusDiv.textContent = `Joined ${room.peers[hostId]?.username || 'host'}'s game.`;
-            romLoader.classList.add('hidden');
-            if (animationFrameId) cancelAnimationFrame(animationFrameId);
-            nes = null;
+            if (!isPeer) { // Only run this logic on first becoming a peer
+                isPeer = true;
+                isHost = false;
+                statusDiv.textContent = `Joined ${room.peers[hostId]?.username || 'host'}'s game. Preparing to stream...`;
 
-            shareButton.style.display = 'none';
-            joinButton.style.display = 'none';
-            stopShareButton.style.display = 'block'; // Acts as a "Leave" button for peers
-            stopShareButton.textContent = 'Leave Game';
+                // A peer doesn't run the emulator loop but needs an initialized NES instance
+                // to handle frame and audio data. We don't have romData here, but that's okay.
+                startEmulator(null); 
+                romLoader.classList.add('hidden'); // Ensure loader is hidden
 
-            // Mobile buttons
-            shareButtonMobile.style.display = 'none';
-            joinButtonMobile.style.display = 'none';
-            stopShareButtonMobile.style.display = 'block';
-            stopShareButtonMobile.textContent = 'Leave';
+                shareButton.style.display = 'none';
+                joinButton.style.display = 'none';
+                stopShareButton.style.display = 'block'; // Acts as a "Leave" button for peers
+                stopShareButton.textContent = 'Leave Game';
 
-            if (!audioContext || audioContext.state === 'closed') {
-                 audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                 const scriptNode = audioContext.createScriptProcessor(AUDIO_BUFFERING, 0, 2);
-                 scriptNode.onaudioprocess = audio_callback;
-                 scriptNode.connect(audioContext.destination);
+                // Mobile buttons
+                shareButtonMobile.style.display = 'none';
+                joinButtonMobile.style.display = 'none';
+                stopShareButtonMobile.style.display = 'block';
+                stopShareButtonMobile.textContent = 'Leave';
             }
-
-
         } else if (!hostId && isPeer) {
             // Host has left
             isPeer = false;
@@ -538,6 +542,11 @@ async function initMultiplayer() {
             joinButtonMobile.style.display = 'block';
             stopShareButtonMobile.style.display = 'none';
             stopShareButtonMobile.textContent = 'Stop';
+            
+            if (audioContext && audioContext.state !== 'closed') {
+                audioContext.close();
+                audioContext = null;
+            }
         }
     });
 
