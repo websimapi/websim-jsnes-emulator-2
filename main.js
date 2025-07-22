@@ -190,21 +190,27 @@ function updateDPadVisuals() {
 }
 
 function setDPadState(up, down, left, right) {
+    if (!nes) return;
+
     if (dPadState.up !== up) {
         dPadState.up = up;
-        nes.buttonEvent(1, jsnes.Controller.BUTTON_UP, up);
+        if (up) nes.buttonDown(1, jsnes.Controller.BUTTON_UP);
+        else nes.buttonUp(1, jsnes.Controller.BUTTON_UP);
     }
     if (dPadState.down !== down) {
         dPadState.down = down;
-        nes.buttonEvent(1, jsnes.Controller.BUTTON_DOWN, down);
+        if (down) nes.buttonDown(1, jsnes.Controller.BUTTON_DOWN);
+        else nes.buttonUp(1, jsnes.Controller.BUTTON_DOWN);
     }
     if (dPadState.left !== left) {
         dPadState.left = left;
-        nes.buttonEvent(1, jsnes.Controller.BUTTON_LEFT, left);
+        if (left) nes.buttonDown(1, jsnes.Controller.BUTTON_LEFT);
+        else nes.buttonUp(1, jsnes.Controller.BUTTON_LEFT);
     }
     if (dPadState.right !== right) {
         dPadState.right = right;
-        nes.buttonEvent(1, jsnes.Controller.BUTTON_RIGHT, right);
+        if (right) nes.buttonDown(1, jsnes.Controller.BUTTON_RIGHT);
+        else nes.buttonUp(1, jsnes.Controller.BUTTON_RIGHT);
     }
     updateDPadVisuals();
 }
