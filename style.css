@@ -150,6 +150,33 @@ h2 {
     position: relative;
     width: 150px;
     height: 150px;
+    pointer-events: all; /* Capture touch events on the d-pad container */
+}
+
+.d-pad div {
+    position: absolute;
+    background-color: rgba(128, 128, 128, 0.5);
+    border: 1px solid rgba(255,255,255,0.3);
+}
+
+.d-pad-up, .d-pad-down, .d-pad-left, .d-pad-right {
+    background-color: rgba(80,80,80,0.6);
+}
+
+.d-pad-up { top: 0; left: 50px; width: 50px; height: 50px; border-radius: 5px 5px 0 0; }
+.d-pad-down { bottom: 0; left: 50px; width: 50px; height: 50px; border-radius: 0 0 5px 5px; }
+.d-pad-left { top: 50px; left: 0; width: 50px; height: 50px; border-radius: 5px 0 0 5px; }
+.d-pad-right { top: 50px; right: 0; width: 50px; height: 50px; border-radius: 0 5px 5px 0; }
+.d-pad-center {
+    top: 50px;
+    left: 50px;
+    width: 50px;
+    height: 50px;
+    background-color: rgba(80,80,80,0.6);
+}
+
+.d-pad .active {
+    background-color: rgba(255, 255, 255, 0.7);
 }
 
 .d-pad-button {
@@ -164,13 +191,9 @@ h2 {
     position: absolute;
     border: 5px solid transparent;
 }
-.d-pad-up { top: 0; left: 50px; border-radius: 5px 5px 0 0; }
 .d-pad-up::after { bottom: 10px; left: 15px; border-bottom-color: #fff; }
-.d-pad-down { bottom: 0; left: 50px; border-radius: 0 0 5px 5px; }
 .d-pad-down::after { top: 10px; left: 15px; border-top-color: #fff; }
-.d-pad-left { top: 50px; left: 0; border-radius: 5px 0 0 5px; }
 .d-pad-left::after { top: 15px; right: 10px; border-right-color: #fff; }
-.d-pad-right { top: 50px; right: 0; border-radius: 0 5px 5px 0; }
 .d-pad-right::after { top: 15px; left: 10px; border-left-color: #fff; }
 
 .action-buttons {

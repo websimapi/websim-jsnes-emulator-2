@@ -162,37 +162,128 @@ document.addEventListener('keyup', (e) => handleKey(e, false));
 
 
 // --- Mobile Controls ---
-const mobileControls = {
-    'd-pad-up': { p: 1, b: jsnes.Controller.BUTTON_UP },
-    'd-pad-down': { p: 1, b: jsnes.Controller.BUTTON_DOWN },
-    'd-pad-left': { p: 1, b: jsnes.Controller.BUTTON_LEFT },
-    'd-pad-right': { p: 1, b: jsnes.Controller.BUTTON_RIGHT },
+const dPad = document.getElementById('d-pad');
+const dPadUp = dPad.querySelector('.d-pad-up');
+const dPadDown = dPad.querySelector('.d-pad-down');
+const dPadLeft = dPad.querySelector('.d-pad-left');
+const dPadRight = dPad.querySelector('.d-pad-right');
+
+const buttonMap = {
     'a-button': { p: 1, b: jsnes.Controller.BUTTON_A },
     'b-button': { p: 1, b: jsnes.Controller.BUTTON_B },
     'start-button': { p: 1, b: jsnes.Controller.BUTTON_START },
     'select-button': { p: 1, b: jsnes.Controller.BUTTON_SELECT },
 };
 
-function handleTouch(e, isDown) {
+const dPadState = {
+    up: false,
+    down: false,
+    left: false,
+    right: false,
+};
+
+function updateDPadVisuals() {
+    dPadUp.classList.toggle('active', dPadState.up);
+    dPadDown.classList.toggle('active', dPadState.down);
+    dPadLeft.classList.toggle('active', dPadState.left);
+    dPadRight.classList.toggle('active', dPadState.right);
+}
+
+function setDPadState(up, down, left, right) {
+    if (dPadState.up !== up) {
+        dPadState.up = up;
+        nes.buttonEvent(1, jsnes.Controller.BUTTON_UP, up);
+    }
+    if (dPadState.down !== down) {
+        dPadState.down = down;
+        nes.buttonEvent(1, jsnes.Controller.BUTTON_DOWN, down);
+    }
+    if (dPadState.left !== left) {
+        dPadState.left = left;
+        nes.buttonEvent(1, jsnes.Controller.BUTTON_LEFT, left);
+    }
+    if (dPadState.right !== right) {
+        dPadState.right = right;
+        nes.buttonEvent(1, jsnes.Controller.BUTTON_RIGHT, right);
+    }
+    updateDPadVisuals();
+}
+
+function handleDPadTouch(e) {
+    e.preventDefault();
+    if (e.type === 'touchend' || e.type === 'touchcancel' || e.touches.length === 0) {
+        setDPadState(false, false, false, false);
+        return;
+    }
+
+    const touch = e.touches[0];
+    const rect = dPad.getBoundingClientRect();
+    const x = touch.clientX - rect.left;
+    const y = touch.clientY - rect.top;
+    
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+
+    const dx = x - centerX;
+    const dy = y - centerY;
+
+    // Deadzone in the center
+    if (Math.sqrt(dx * dx + dy * dy) < 20) {
+        setDPadState(false, false, false, false);
+        return;
+    }
+
+    const angle = Math.atan2(dy, dx);
+    const degrees = angle * 180 / Math.PI;
+
+    let up = false, down = false, left = false, right = false;
+
+    if (degrees > -135 && degrees < -45) {
+        up = true;
+    } else if (degrees > 45 && degrees < 135) {
+        down = true;
+    } else if (degrees > 135 || degrees < -135) {
+        left = true;
+    } else if (degrees < 45 && degrees > -45) {
+        right = true;
+    }
+    
+    setDPadState(up, down, left, right);
+}
+
+dPad.addEventListener('touchstart', handleDPadTouch);
+dPad.addEventListener('touchmove', handleDPadTouch);
+dPad.addEventListener('touchend', handleDPadTouch);
+dPad.addEventListener('touchcancel', handleDPadTouch);
+
+// Generic button handler for A, B, Start, Select
+function handleButtonTouch(e, isDown) {
     e.preventDefault();
     for (const touch of e.changedTouches) {
-        const element = document.elementFromPoint(touch.clientX, touch.clientY);
-        if (element && element.id && mobileControls[element.id]) {
-            const { p, b } = mobileControls[element.id];
-            if (nes) {
-                if (isDown) {
-                    nes.buttonDown(p, b);
-                } else {
-                    nes.buttonUp(p, b);
+        let element = touch.target;
+        while (element && element.id !== 'mobile-controls') {
+             if (buttonMap[element.id]) {
+                const { p, b } = buttonMap[element.id];
+                if (nes) {
+                    if (isDown) {
+                        nes.buttonDown(p, b);
+                    } else {
+                        nes.buttonUp(p, b);
+                    }
                 }
+                break;
             }
+            element = element.parentElement;
         }
     }
 }
 
-document.getElementById('mobile-controls').addEventListener('touchstart', (e) => handleTouch(e, true));
-document.getElementById('mobile-controls').addEventListener('touchend', (e) => handleTouch(e, false));
-document.getElementById('mobile-controls').addEventListener('touchcancel', (e) => handleTouch(e, false));
+const otherButtons = document.querySelectorAll('.action-button, .menu-button');
+otherButtons.forEach(button => {
+    button.addEventListener('touchstart', e => handleButtonTouch(e, true));
+    button.addEventListener('touchend', e => handleButtonTouch(e, false));
+    button.addEventListener('touchcancel', e => handleButtonTouch(e, false));
+});
 
 
 // --- ROM Loading ---
