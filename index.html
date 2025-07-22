@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>JSNES Emulator</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="/jsnes.min.js"></script>
+</head>
+<body>
+    <div id="emulator">
+        <h1>JSNES - NES Emulator</h1>
+        <div id="screen-container">
+            <canvas id="screen" width="256" height="240"></canvas>
+            <div id="rom-loader">
+                <p>Select an NES ROM file (.nes)</p>
+                <input type="file" id="rom-file" accept=".nes">
+            </div>
+        </div>
+        <div id="controls">
+            <h2>Controls</h2>
+            <div class="controls-grid">
+                <div><span>A</span>: K</div>
+                <div><span>B</span>: J</div>
+                <div><span>Start</span>: Enter</div>
+                <div><span>Select</span>: Shift</div>
+                <div><span>D-Pad</span>: Arrow Keys or WASD</div>
+            </div>
+        </div>
+        <div id="status">
+            <p>Please load a ROM to start.</p>
+        </div>
+        <div id="mobile-controls">
+            <div class="d-pad">
+                <button id="d-pad-up" class="control-button d-pad-up"></button>
+                <button id="d-pad-left" class="control-button d-pad-left"></button>
+                <button id="d-pad-right" class="control-button d-pad-right"></button>
+                <button id="d-pad-down" class="control-button d-pad-down"></button>
+            </div>
+            <div class="menu-buttons">
+                <button id="select-button" class="control-button menu-button">SELECT</button>
+                <button id="start-button" class="control-button menu-button">START</button>
+            </div>
+            <div class="action-buttons">
+                <button id="b-button" class="control-button action-button">B</button>
+                <button id="a-button" class="control-button action-button">A</button>
+            </div>
+        </div>
+    </div>
+    <script type="module" src="main.js"></script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516" integrity="sha512-8DS7rgIrAmghBFwoOTujcf6D9rXvH8xm8JQ1Ja01h9QX8EzXldiszufYa4IFfKdLUKTTrnSFXLDkUEOTrZQ8Qg==" data-cf-beacon='{"version":"2024.11.0","token":"4c6229722a6346bc8eb5cb0e5eae5d41","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body>
+</html>
