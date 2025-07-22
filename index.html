@@ -11,7 +11,7 @@
     <div id="emulator">
         <div id="multiplayer-controls">
             <div id="players"></div>
-            <div id="buttons">
+            <div id="buttons" class="desktop-only">
                 <button id="share-button" class="mp-button">Share Game</button>
                 <button id="join-button" class="mp-button">Join Game</button>
                 <button id="stop-share-button" class="mp-button" style="display: none;">Stop Sharing</button>
@@ -46,13 +46,20 @@
                 <div class="d-pad-down"></div>
                 <div class="d-pad-center"></div>
             </div>
-            <div class="menu-buttons">
-                <button id="select-button" class="control-button menu-button">SELECT</button>
-                <button id="start-button" class="control-button menu-button">START</button>
-            </div>
             <div class="action-buttons">
                 <button id="b-button" class="control-button action-button">B</button>
                 <button id="a-button" class="control-button action-button">A</button>
+            </div>
+            <div class="bottom-controls">
+                <div class="menu-buttons">
+                    <button id="select-button" class="control-button menu-button">SELECT</button>
+                    <button id="start-button" class="control-button menu-button">START</button>
+                </div>
+                <div id="mobile-mp-buttons">
+                    <button id="share-button-mobile" class="mp-button">Share</button>
+                    <button id="join-button-mobile" class="mp-button">Join</button>
+                    <button id="stop-share-button-mobile" class="mp-button" style="display: none;">Stop</button>
+                </div>
             </div>
         </div>
     </div>

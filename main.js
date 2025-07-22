@@ -20,6 +20,11 @@ const joinButton = document.getElementById('join-button');
 const stopShareButton = document.getElementById('stop-share-button');
 const playersDiv = document.getElementById('players');
 
+// Mobile Multiplayer UI
+const shareButtonMobile = document.getElementById('share-button-mobile');
+const joinButtonMobile = document.getElementById('join-button-mobile');
+const stopShareButtonMobile = document.getElementById('stop-share-button-mobile');
+
 let imageData = canvasContext.getImageData(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 let framebuffer_u8 = new Uint8ClampedArray(imageData.data.buffer);
 let framebuffer_u32 = new Uint32Array(imageData.data.buffer);
@@ -468,6 +473,9 @@ function stopHosting() {
     stopShareButton.style.display = 'none';
     joinButton.style.display = 'block';
     shareButton.style.display = 'block';
+    stopShareButtonMobile.style.display = 'none';
+    joinButtonMobile.style.display = 'block';
+    shareButtonMobile.style.display = 'block';
     statusDiv.textContent = 'Sharing stopped. Load a ROM to play.';
     if(animationFrameId) cancelAnimationFrame(animationFrameId);
     animationFrameId = null;
@@ -502,6 +510,12 @@ async function initMultiplayer() {
             stopShareButton.style.display = 'block'; // Acts as a "Leave" button for peers
             stopShareButton.textContent = 'Leave Game';
 
+            // Mobile buttons
+            shareButtonMobile.style.display = 'none';
+            joinButtonMobile.style.display = 'none';
+            stopShareButtonMobile.style.display = 'block';
+            stopShareButtonMobile.textContent = 'Leave';
+
             if (!audioContext || audioContext.state === 'closed') {
                  audioContext = new (window.AudioContext || window.webkitAudioContext)();
                  const scriptNode = audioContext.createScriptProcessor(AUDIO_BUFFERING, 0, 2);
@@ -519,6 +533,11 @@ async function initMultiplayer() {
             joinButton.style.display = 'block';
             stopShareButton.style.display = 'none';
             stopShareButton.textContent = 'Stop Sharing';
+            // Mobile buttons
+            shareButtonMobile.style.display = 'block';
+            joinButtonMobile.style.display = 'block';
+            stopShareButtonMobile.style.display = 'none';
+            stopShareButtonMobile.textContent = 'Stop';
         }
     });
 
@@ -571,7 +590,7 @@ async function initMultiplayer() {
     
     updatePlayerList();
 
-    shareButton.addEventListener('click', async () => {
+    async function handleShare() {
         if (!nes || !lastRomFile) {
             alert('Please load a ROM file first!');
             return;
@@ -588,18 +607,26 @@ async function initMultiplayer() {
             shareButton.style.display = 'none';
             joinButton.style.display = 'none';
             stopShareButton.style.display = 'block';
+            
+            // Mobile buttons
+            shareButtonMobile.style.display = 'none';
+            joinButtonMobile.style.display = 'none';
+            stopShareButtonMobile.style.display = 'block';
+            stopShareButtonMobile.textContent = 'Stop';
+
             updatePlayerList();
 
         } catch(e) {
             statusDiv.textContent = 'Error sharing ROM.';
             console.error('Failed to upload ROM', e);
         }
-    });
-    
-    joinButton.addEventListener('click', () => {
+    }
+
+    function handleJoin() {
         // Just being in the room is enough, the subscription will handle joining a host.
         statusDiv.textContent = "Looking for a game to join...";
         joinButton.disabled = true;
+        joinButtonMobile.disabled = true;
 
         if (hostId && hostId !== room.clientId) {
              statusDiv.textContent = `Joined ${room.peers[hostId]?.username || 'host'}'s game.`;
@@ -608,13 +635,14 @@ async function initMultiplayer() {
              setTimeout(() => {
                 if(!isPeer) { // re-enable if we didn't find a game
                     joinButton.disabled = false;
+                    joinButtonMobile.disabled = false;
                     statusDiv.textContent = "Please load a ROM to start.";
                 }
              }, 3000)
         }
-    });
+    }
 
-    stopShareButton.addEventListener('click', () => {
+    function handleStop() {
         if (isHost) {
             stopHosting();
         } else if (isPeer) {
@@ -625,10 +653,26 @@ async function initMultiplayer() {
             stopShareButton.style.display = 'none';
             joinButton.style.display = 'block';
             shareButton.style.display = 'block';
+            
+            // Mobile buttons
+            stopShareButtonMobile.style.display = 'none';
+            joinButtonMobile.style.display = 'block';
+            shareButtonMobile.style.display = 'block';
+            stopShareButtonMobile.textContent = 'Stop';
+
             statusDiv.textContent = 'You have left the game.';
             romLoader.classList.remove('hidden');
         }
-    });
+    }
+
+    shareButton.addEventListener('click', handleShare);
+    shareButtonMobile.addEventListener('click', handleShare);
+    
+    joinButton.addEventListener('click', handleJoin);
+    joinButtonMobile.addEventListener('click', handleJoin);
+
+    stopShareButton.addEventListener('click', handleStop);
+    stopShareButtonMobile.addEventListener('click', handleStop);
 }
 
 initMultiplayer();
