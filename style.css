@@ -16,6 +16,85 @@ body {
     overflow: hidden; /* Prevent scrollbars */
 }
 
+#multiplayer-controls {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    z-index: 20;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(0,0,0,0.5);
+    padding: 5px 10px;
+    border-radius: 8px;
+    max-width: 95vw;
+    margin: 0 auto;
+}
+
+#players {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.player {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: #282c34;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.8em;
+}
+
+.player img {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+}
+
+.player .badge {
+    background: #61afef;
+    color: #000;
+    padding: 2px 5px;
+    border-radius: 4px;
+    font-size: 0.7em;
+    font-weight: bold;
+}
+
+#multiplayer-controls #buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.mp-button {
+    background-color: #61afef;
+    color: #282c34;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+
+.mp-button:hover {
+    background-color: #98c379;
+}
+
+.mp-button:disabled {
+    background-color: #4b5263;
+    cursor: not-allowed;
+}
+
+#stop-share-button {
+    background-color: #e06c75;
+}
+#stop-share-button:hover {
+    background-color: #f07c85;
+}
+
 #emulator {
     background-color: #000;
     width: 100vw;
@@ -25,6 +104,7 @@ body {
     justify-content: flex-start; /* Changed from center */
     align-items: center;
     position: relative;
+    padding-top: 50px; /* Make space for multiplayer controls */
     padding: 0;
 }
 
@@ -273,6 +353,15 @@ h2 {
     body {
         background-color: #282c34;
     }
+
+    #multiplayer-controls {
+        position: static;
+        margin-bottom: 10px;
+        width: 100%;
+        max-width: 600px;
+        box-sizing: border-box;
+    }
+
     #emulator {
         background-color: #353a44;
         border-radius: 8px;

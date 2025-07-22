@@ -9,6 +9,14 @@
 </head>
 <body>
     <div id="emulator">
+        <div id="multiplayer-controls">
+            <div id="players"></div>
+            <div id="buttons">
+                <button id="share-button" class="mp-button">Share Game</button>
+                <button id="join-button" class="mp-button">Join Game</button>
+                <button id="stop-share-button" class="mp-button" style="display: none;">Stop Sharing</button>
+            </div>
+        </div>
         <h1>JSNES - NES Emulator</h1>
         <div id="screen-container">
             <canvas id="screen" width="256" height="240"></canvas>
