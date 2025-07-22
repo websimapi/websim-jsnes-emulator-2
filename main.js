@@ -232,25 +232,41 @@ function handleDPadTouch(e) {
 
     const dx = x - centerX;
     const dy = y - centerY;
+    const dist_sq = dx * dx + dy * dy;
 
-    // Deadzone in the center
-    if (Math.sqrt(dx * dx + dy * dy) < 20) {
+    // Make the entire circular area active, with a small deadzone
+    if (dist_sq > (centerX * centerX)) {
+        // Finger is outside the d-pad circle, release all
+        setDPadState(false, false, false, false);
+        return;
+    }
+    
+    if (dist_sq < (20 * 20)) {
+        // Deadzone in the center
         setDPadState(false, false, false, false);
         return;
     }
 
-    const angle = Math.atan2(dy, dx);
-    const degrees = angle * 180 / Math.PI;
+    const angle = Math.atan2(dy, dx) * 180 / Math.PI;
 
     let up = false, down = false, left = false, right = false;
 
-    if (degrees > -135 && degrees < -45) {
+    // 8-way directional logic, with 45 degree sectors
+    if (angle > -67.5 && angle <= -22.5) { // Up-Right
+        up = true; right = true;
+    } else if (angle > -112.5 && angle <= -67.5) { // Up
         up = true;
-    } else if (degrees > 45 && degrees < 135) {
-        down = true;
-    } else if (degrees > 135 || degrees < -135) {
+    } else if (angle > -157.5 && angle <= -112.5) { // Up-Left
+        up = true; left = true;
+    } else if (angle > 157.5 || angle <= -157.5) { // Left
         left = true;
-    } else if (degrees < 45 && degrees > -45) {
+    } else if (angle > 112.5 && angle <= 157.5) { // Down-Left
+        down = true; left = true;
+    } else if (angle > 67.5 && angle <= 112.5) { // Down
+        down = true;
+    } else if (angle > 22.5 && angle <= 67.5) { // Down-Right
+        down = true; right = true;
+    } else if (angle > -22.5 && angle <= 22.5) { // Right
         right = true;
     }
     
